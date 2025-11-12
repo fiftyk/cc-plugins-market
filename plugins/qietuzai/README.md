@@ -16,28 +16,36 @@
 
 在 Claude Code 中使用 `/plugin` 命令安装此 plugin。
 
-### 2. 自动配置向导 ✨
+### 2. 图形化配置向导 ✨
 
-**首次启动 Claude Code 时，会自动触发配置向导：**
+**首次启动 Claude Code 时，会自动触发图形化配置向导：**
 
-1. 🌐 **自动打开浏览器**：系统会自动打开 Figma 设置页面
-2. 📋 **获取 API Key**：按照页面提示创建并复制 Personal Access Token
-3. ⚙️ **配置环境变量**：按照终端中的详细说明配置环境变量
-4. 🔄 **重启 Claude Code**：配置完成后重启即可使用
+1. 🌐 **自动启动配置页面**：系统会在浏览器中打开本地配置页面
+2. 🎨 **美观的图形界面**：提供友好的表单界面，无需手动编辑配置文件
+3. 📋 **获取 API Key**：点击链接跳转到 Figma 设置页面，创建并复制 token
+4. ⌨️ **输入并保存**：在表单中粘贴 API Key，点击保存即可自动配置
+5. ✅ **自动写入配置**：系统自动将 API Key 写入环境变量
+6. 🔄 **重启 Claude Code**：配置完成后重启即可使用
 
-配置向导会在终端中显示完整的步骤说明和命令，你只需要跟随提示操作即可。
+整个过程只需 1-2 分钟，完全图形化操作！
 
-#### 手动配置（可选）
+#### 重新配置
 
-如果你想手动配置或跳过了自动向导，也可以按以下步骤操作：
+如果需要重新配置 API Key：
 
-**获取 Figma API Key：**
+```bash
+# 方法 1: 删除环境变量，重启 Claude Code 会自动提示配置
+unset FIGMA_API_KEY
 
-1. 访问 [Figma Account Settings](https://www.figma.com/settings)
-2. 在 "Personal access tokens" 部分点击 "Create a new personal access token"
-3. 复制生成的 token
+# 方法 2: 直接修改配置文件
+vim ~/.zshrc  # 或 ~/.bashrc
+# 找到并修改 FIGMA_API_KEY 的值
+source ~/.zshrc
+```
 
-**配置环境变量：**
+#### 手动配置（高级）
+
+如果你更喜欢手动配置：
 
 macOS/Linux:
 ```bash

@@ -2,71 +2,53 @@
 
 # 检查是否已经配置过 FIGMA_API_KEY
 if [ -z "$FIGMA_API_KEY" ]; then
-    # 检查是否是第一次提示（使用一个标记文件）
-    FLAG_FILE="$HOME/.claude/qietuzai-setup-done"
+    echo ""
+    echo "╔════════════════════════════════════════════════════════════╗"
+    echo "║  🎨 切图仔 (Qietuzai) Plugin - 配置向导                   ║"
+    echo "╚════════════════════════════════════════════════════════════╝"
+    echo ""
+    echo "⚠️  检测到您还未配置 Figma API Key"
+    echo ""
+    echo "🌐 正在启动图形化配置界面..."
+    echo ""
 
-    if [ ! -f "$FLAG_FILE" ]; then
-        echo ""
-        echo "╔════════════════════════════════════════════════════════════╗"
-        echo "║  🎨 切图仔 (Qietuzai) Plugin - 首次配置向导               ║"
-        echo "╚════════════════════════════════════════════════════════════╝"
-        echo ""
-        echo "⚠️  检测到您还未配置 Figma API Key"
-        echo ""
-        echo "📝 配置步骤："
-        echo ""
-        echo "1️⃣  正在为您打开 Figma 设置页面..."
-        echo ""
+    # 获取脚本所在目录（使用 CLAUDE_PLUGIN_ROOT 如果可用）
+    if [ -n "$CLAUDE_PLUGIN_ROOT" ]; then
+        SCRIPT_DIR="$CLAUDE_PLUGIN_ROOT/hooks"
+    else
+        SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    fi
 
-        # 根据操作系统打开浏览器
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            # macOS
-            open "https://www.figma.com/settings" 2>/dev/null
-        elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-            # Linux
-            xdg-open "https://www.figma.com/settings" 2>/dev/null
-        elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
-            # Windows
-            start "https://www.figma.com/settings" 2>/dev/null
-        fi
+    # 启动 Python HTTP 服务器（后台运行）
+    python3 "$SCRIPT_DIR/setup-server.py" > /dev/null 2>&1 &
+    SERVER_PID=$!
 
-        echo "2️⃣  在浏览器中："
-        echo "   • 滚动到 'Personal access tokens' 部分"
-        echo "   • 点击 'Create a new personal access token'"
-        echo "   • 输入 token 名称（如 'Claude Code'）"
-        echo "   • 点击 'Create token' 并复制生成的 token"
-        echo ""
-        echo "3️⃣  配置环境变量："
-        echo ""
+    # 等待服务器启动
+    sleep 2
 
-        # 检测 shell 类型并提供相应的配置说明
-        if [ -n "$ZSH_VERSION" ]; then
-            SHELL_CONFIG="~/.zshrc"
-        elif [ -n "$BASH_VERSION" ]; then
-            SHELL_CONFIG="~/.bashrc"
-        else
-            SHELL_CONFIG="~/.profile"
-        fi
+    # 打开浏览器到配置页面
+    CONFIG_URL="http://localhost:3456"
 
-        echo "   在终端中运行以下命令："
-        echo ""
-        echo "   echo 'export FIGMA_API_KEY=\"your-api-key-here\"' >> $SHELL_CONFIG"
-        echo "   source $SHELL_CONFIG"
-        echo ""
-        echo "   （请将 your-api-key-here 替换为您刚复制的 token）"
-        echo ""
-        echo "4️⃣  重启 Claude Code 使配置生效"
-        echo ""
-        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo ""
-        echo "💡 提示：配置完成后，此消息将不再显示"
-        echo ""
-        echo "📚 详细文档：查看 plugin 目录中的 README.md"
-        echo ""
+    echo "✨ 配置页面已在浏览器中打开: $CONFIG_URL"
+    echo ""
+    echo "📝 请在浏览器中完成以下步骤："
+    echo "   1. 访问 Figma 设置页面获取 API Key"
+    echo "   2. 在表单中输入您的 API Key"
+    echo "   3. 点击保存"
+    echo "   4. 重启 Claude Code"
+    echo ""
+    echo "💡 如果浏览器没有自动打开，请手动访问: $CONFIG_URL"
+    echo ""
 
-        # 创建标记文件，避免每次都提示
-        mkdir -p "$HOME/.claude"
-        touch "$FLAG_FILE"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        open "$CONFIG_URL" 2>/dev/null
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Linux
+        xdg-open "$CONFIG_URL" 2>/dev/null
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        # Windows
+        start "$CONFIG_URL" 2>/dev/null
     fi
 else
     # API Key 已配置，静默通过
