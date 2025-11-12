@@ -1,0 +1,18 @@
+{
+  "name": "cc-plugin-market",
+  "owner": {
+    "name": "Liu Rongtao",
+    "email": "liurtao@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "qietuzai",
+      "source": "./plugins/qietuzai",
+      "description": "Automatic generate UI code",
+      "version": "1.0.0",
+      "author": {
+        "name": "Guo Wenqing"
+      }
+    }
+  ]
+}

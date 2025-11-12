@@ -1,0 +1,8 @@
+{
+    "name": "切图仔",
+    "version": "1.0.0",
+    "description": "自动从 Figma 生成 UI 代码。首次使用会自动引导配置 Figma API Key",
+    "author": {
+        "name": "Guo Wenqing"
+    }
+}
