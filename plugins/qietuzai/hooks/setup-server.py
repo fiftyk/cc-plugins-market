@@ -421,13 +421,15 @@ SUCCESS_HTML = """
 
         <div class="info-box">
             <h3>📋 配置详情</h3>
-            <p>环境变量已添加到: <strong>{shell_config}</strong></p>
+            <p>✅ API Key 已保存到插件配置文件 <strong>.mcp.json</strong></p>
+            <p>✅ 备份已添加到: <strong>{shell_config}</strong></p>
             <div class="command">export FIGMA_API_KEY="****"</div>
         </div>
 
         <div class="info-box">
             <h3>🔄 下一步</h3>
             <p>请<strong>重启 Claude Code</strong> 使配置生效，然后即可开始使用切图仔 Plugin！</p>
+            <p style="margin-top: 8px; font-size: 12px; color: #e53e3e;">⚠️ 注意：请勿将 <strong>.mcp.json</strong> 提交到 git，以保护您的 API Key 安全</p>
         </div>
 
         <button onclick="window.close()">关闭此页面</button>
@@ -498,6 +500,22 @@ class SetupHandler(http.server.SimpleHTTPRequestHandler):
                 shell_name = 'bash'
 
             try:
+                # 1. 更新 .mcp.json 文件（替换占位符）
+                # 获取插件根目录
+                script_dir = Path(__file__).parent
+                plugin_root = script_dir.parent
+                mcp_json_path = plugin_root / '.mcp.json'
+
+                if not mcp_json_path.exists():
+                    raise FileNotFoundError(f'.mcp.json 文件不存在: {mcp_json_path}')
+
+                # 读取并替换占位符
+                mcp_content = mcp_json_path.read_text()
+                if '${FIGMA_API_KEY}' in mcp_content:
+                    mcp_content = mcp_content.replace('${FIGMA_API_KEY}', api_key)
+                    mcp_json_path.write_text(mcp_content)
+
+                # 2. 同时也保存到 shell 配置文件（作为备份）
                 # 读取现有配置
                 if config_file.exists():
                     content = config_file.read_text()
@@ -524,7 +542,8 @@ class SetupHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json_response({
                     'success': True,
                     'shell': shell_name,
-                    'config_file': str(config_file)
+                    'config_file': str(config_file),
+                    'mcp_json': str(mcp_json_path)
                 })
 
                 # 配置成功后，延迟关闭服务器

@@ -1,0 +1,5 @@
+# 保护用户的 Figma API Key
+.mcp.json
+
+# 只提交模板文件
+!.mcp.json.template

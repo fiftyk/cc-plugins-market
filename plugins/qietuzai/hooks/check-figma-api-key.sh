@@ -1,7 +1,30 @@
 #!/bin/bash
 
-# 检查是否已经配置过 FIGMA_API_KEY
-if [ -z "$FIGMA_API_KEY" ]; then
+# 获取插件根目录
+if [ -n "$CLAUDE_PLUGIN_ROOT" ]; then
+    PLUGIN_ROOT="$CLAUDE_PLUGIN_ROOT"
+else
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    PLUGIN_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+fi
+
+MCP_JSON="$PLUGIN_ROOT/.mcp.json"
+MCP_JSON_TEMPLATE="$PLUGIN_ROOT/.mcp.json.template"
+
+# 检查 .mcp.json 是否存在，如果不存在则从模板复制
+if [ ! -f "$MCP_JSON" ]; then
+    if [ -f "$MCP_JSON_TEMPLATE" ]; then
+        echo "📝 首次运行，正在从模板创建 .mcp.json 文件..."
+        cp "$MCP_JSON_TEMPLATE" "$MCP_JSON"
+    else
+        echo "❌ 错误：找不到 .mcp.json 和 .mcp.json.template 文件"
+        exit 1
+    fi
+fi
+
+# 检查 .mcp.json 中是否还包含未替换的 ${FIGMA_API_KEY} 占位符
+if grep -q '\${FIGMA_API_KEY}' "$MCP_JSON"; then
+    # 包含占位符，说明还没配置
     echo ""
     echo "╔════════════════════════════════════════════════════════════╗"
     echo "║  🎨 切图仔 (Qietuzai) Plugin - 配置向导                   ║"
